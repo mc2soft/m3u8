@@ -144,6 +144,7 @@ type MasterPlaylist struct {
 	CypherVersion string // non-standard tag for Widevine (see also WV struct)
 	buf           bytes.Buffer
 	ver           uint8
+	AudioVariants []*Alternative
 }
 
 // This structure represents variants for master playlist.

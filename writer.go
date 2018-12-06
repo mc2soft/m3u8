@@ -48,10 +48,12 @@ func NewMasterPlaylist() *MasterPlaylist {
 // This operation does reset playlist cache.
 func (p *MasterPlaylist) Append(uri string, chunklist *MediaPlaylist, params VariantParams) {
 	v := new(Variant)
+	av := new(Alternative)
 	v.URI = uri
 	v.Chunklist = chunklist
 	v.VariantParams = params
 	p.Variants = append(p.Variants, v)
+	p.AudioVariants = append(p.AudioVariants, av)
 	if len(v.Alternatives) > 0 {
 		// From section 7:
 		// The EXT-X-MEDIA tag and the AUDIO, VIDEO and SUBTITLES attributes of
@@ -225,6 +227,59 @@ func (p *MasterPlaylist) Encode() *bytes.Buffer {
 			}
 			p.buf.WriteRune('\n')
 		}
+	}
+	for _, av := range p.AudioVariants {
+		p.buf.WriteString("#EXT-X-MEDIA:")
+		if av.Type != "" {
+			p.buf.WriteString("TYPE=") // Type should not be quoted
+			p.buf.WriteString(av.Type)
+		}
+		if av.GroupId != "" {
+			p.buf.WriteString(",GROUP-ID=\"")
+			p.buf.WriteString(av.GroupId)
+			p.buf.WriteRune('"')
+		}
+		if av.Name != "" {
+			p.buf.WriteString(",NAME=\"")
+			p.buf.WriteString(av.Name)
+			p.buf.WriteRune('"')
+		}
+		p.buf.WriteString(",DEFAULT=")
+		if av.Default {
+			p.buf.WriteString("YES")
+		} else {
+			p.buf.WriteString("NO")
+		}
+		if av.Autoselect != "" {
+			p.buf.WriteString(",AUTOSELECT=")
+			p.buf.WriteString(av.Autoselect)
+		}
+		if av.Language != "" {
+			p.buf.WriteString(",LANGUAGE=\"")
+			p.buf.WriteString(av.Language)
+			p.buf.WriteRune('"')
+		}
+		if av.Forced != "" {
+			p.buf.WriteString(",FORCED=\"")
+			p.buf.WriteString(av.Forced)
+			p.buf.WriteRune('"')
+		}
+		if av.Characteristics != "" {
+			p.buf.WriteString(",CHARACTERISTICS=\"")
+			p.buf.WriteString(av.Characteristics)
+			p.buf.WriteRune('"')
+		}
+		if av.Subtitles != "" {
+			p.buf.WriteString(",SUBTITLES=\"")
+			p.buf.WriteString(av.Subtitles)
+			p.buf.WriteRune('"')
+		}
+		if av.URI != "" {
+			p.buf.WriteString(",URI=\"")
+			p.buf.WriteString(av.URI)
+			p.buf.WriteRune('"')
+		}
+		p.buf.WriteRune('\n')
 	}
 
 	return &p.buf

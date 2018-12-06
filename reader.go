@@ -260,6 +260,7 @@ func decodeLineOfMasterPlaylist(p *MasterPlaylist, state *decodingState, line st
 			}
 		}
 		state.alternatives = append(state.alternatives, &alt)
+		p.AudioVariants = append(p.AudioVariants, &alt)
 	case !state.tagStreamInf && strings.HasPrefix(line, "#EXT-X-STREAM-INF:"):
 		state.tagStreamInf = true
 		state.listType = MASTER
@@ -267,6 +268,7 @@ func decodeLineOfMasterPlaylist(p *MasterPlaylist, state *decodingState, line st
 		if len(state.alternatives) > 0 {
 			state.variant.Alternatives = state.alternatives
 			state.alternatives = nil
+			p.AudioVariants = nil
 		}
 		p.Variants = append(p.Variants, state.variant)
 		for k, v := range decodeParamsLine(line[18:]) {
@@ -311,6 +313,7 @@ func decodeLineOfMasterPlaylist(p *MasterPlaylist, state *decodingState, line st
 		if len(state.alternatives) > 0 {
 			state.variant.Alternatives = state.alternatives
 			state.alternatives = nil
+			p.AudioVariants = nil
 		}
 		p.Variants = append(p.Variants, state.variant)
 		for k, v := range decodeParamsLine(line[26:]) {
